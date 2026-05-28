@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, Lock, ShieldAlert, CheckSquare, UserCheck } from 'lucide-react';
+import { ShieldAlert, UserCheck } from 'lucide-react';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -57,60 +57,58 @@ const Register = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      minHeight: '85vh',
+      minHeight: '80vh',
       padding: '1rem'
     }}>
       <div className="glass-card" style={{
-        maxWidth: '450px',
-        width: '100%',
-        animation: 'fadeIn 0.5s ease-out'
+        maxWidth: '400px',
+        width: '100%'
       }}>
-        {/* Card Header logo */}
+        {/* Header */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          marginBottom: '1.75rem',
+          marginBottom: '1.5rem',
           textAlign: 'center'
         }}>
           <div style={{
-            background: role === 'Admin' ? 'var(--accent-admin)' : 'var(--accent-primary)',
-            color: '#fff',
-            width: '45px',
-            height: '45px',
-            borderRadius: '12px',
+            background: role === 'Admin' ? 'var(--accent-purple)' : 'var(--accent-blue)',
+            color: '#0d1117',
+            width: '38px',
+            height: '38px',
+            borderRadius: '6px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: '0.75rem',
-            boxShadow: role === 'Admin' ? 'var(--shadow-glow-admin)' : 'var(--shadow-glow)',
-            transition: 'var(--transition-smooth)'
+            marginBottom: '0.5rem',
+            transition: 'var(--transition)'
           }}>
-            <UserCheck size={24} color={role === 'Admin' ? '#fff' : '#000'} />
+            <UserCheck size={20} color="#0d1117" />
           </div>
-          <h2 style={{ fontSize: '1.75rem', letterSpacing: '-0.02em', color: '#f0f6fc' }}>
-            Create Account
+          <h2 style={{ fontSize: '1.4rem', color: 'var(--text-main)' }}>
+            Register
           </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            Join Avidus to experience advanced RBAC tracking
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+            Create an account to manage tasks and log activity
           </p>
         </div>
 
-        {/* Dynamic Security Errors */}
+        {/* Dynamic Errors */}
         {(formError || error) && (
           <div style={{
-            background: 'rgba(248, 81, 73, 0.12)',
-            border: '1px solid rgba(248, 81, 73, 0.25)',
-            color: 'var(--accent-danger)',
-            padding: '0.75rem 1rem',
-            borderRadius: '8px',
-            fontSize: '0.85rem',
-            marginBottom: '1.5rem',
+            background: 'rgba(255, 123, 114, 0.1)',
+            border: '1px solid rgba(255, 123, 114, 0.2)',
+            color: 'var(--accent-red)',
+            padding: '0.5rem 0.75rem',
+            borderRadius: '6px',
+            fontSize: '0.75rem',
+            marginBottom: '1rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
+            gap: '0.4rem'
           }}>
-            <ShieldAlert size={16} style={{ flexShrink: 0 }} />
+            <ShieldAlert size={14} style={{ flexShrink: 0 }} />
             <span>{formError || error}</span>
           </div>
         )}
@@ -121,116 +119,84 @@ const Register = () => {
             <label className="form-label" htmlFor="name-input">
               Full Name
             </label>
-            <div style={{ position: 'relative' }}>
-              <User size={16} color="var(--text-dimmed)" style={{
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)'
-              }} />
-              <input
-                id="name-input"
-                type="text"
-                className="form-input"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
-                required
-              />
-            </div>
+            <input
+              id="name-input"
+              type="text"
+              className="form-input"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="email-input">
               Email Address
             </label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={16} color="var(--text-dimmed)" style={{
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)'
-              }} />
-              <input
-                id="email-input"
-                type="email"
-                className="form-input"
-                placeholder="john@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
-                required
-              />
-            </div>
+            <input
+              id="email-input"
+              type="email"
+              className="form-input"
+              placeholder="john@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
           <div className="form-group">
             <label className="form-label" htmlFor="password-input">
-              Password (min. 6 characters)
+              Password (min. 6 chars)
             </label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={16} color="var(--text-dimmed)" style={{
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)'
-              }} />
-              <input
-                id="password-input"
-                type="password"
-                className="form-input"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
-                required
-              />
-            </div>
+            <input
+              id="password-input"
+              type="password"
+              className="form-input"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
 
-          <div className="form-group" style={{ marginBottom: '1.75rem' }}>
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
             <label className="form-label" htmlFor="role-select">
-              Select User Role
+              User Role Scope
             </label>
             <select
               id="role-select"
               className="form-input"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              style={{
-                background: 'rgba(13, 17, 23, 0.8)',
-                cursor: 'pointer'
-              }}
+              style={{ cursor: 'pointer' }}
             >
-              <option value="User">Standard User (CRUD own tasks)</option>
-              <option value="Admin">System Administrator (Total control)</option>
+              <option value="User">Standard User (CRUD tasks)</option>
+              <option value="Admin">Administrator (Global Audit)</option>
             </select>
           </div>
 
           <button
             type="submit"
             className={`btn ${role === 'Admin' ? 'btn-admin' : 'btn-primary'}`}
-            style={{ width: '100%', padding: '0.85rem' }}
+            style={{ width: '100%', padding: '0.7rem' }}
           >
             Register Account
           </button>
         </form>
 
-        {/* Link back to login */}
         <div style={{
           textAlign: 'center',
-          marginTop: '1.5rem',
-          fontSize: '0.875rem',
+          marginTop: '1.25rem',
+          fontSize: '0.8rem',
           color: 'var(--text-muted)'
         }}>
-          Already registered?{' '}
+          Registered?{' '}
           <Link to="/login" style={{
-            color: role === 'Admin' ? 'var(--accent-admin)' : 'var(--accent-primary)',
+            color: role === 'Admin' ? 'var(--accent-purple)' : 'var(--accent-blue)',
             textDecoration: 'none',
-            fontWeight: 600,
-            transition: 'var(--transition-smooth)'
-          }} onMouseOver={(e) => e.target.style.textDecoration = 'underline'} onMouseOut={(e) => e.target.style.textDecoration = 'none'}>
+            fontWeight: 600
+          }}>
             Sign In Here
           </Link>
         </div>

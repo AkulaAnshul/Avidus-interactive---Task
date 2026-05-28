@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, ShieldAlert, CheckSquare } from 'lucide-react';
+import { ShieldAlert, CheckSquare } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -50,59 +50,57 @@ const Login = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      minHeight: '80vh',
+      minHeight: '75vh',
       padding: '1rem'
     }}>
       <div className="glass-card" style={{
-        maxWidth: '420px',
-        width: '100%',
-        animation: 'fadeIn 0.5s ease-out'
+        maxWidth: '380px',
+        width: '100%'
       }}>
-        {/* Card Header logo */}
+        {/* Header */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          marginBottom: '2rem',
+          marginBottom: '1.5rem',
           textAlign: 'center'
         }}>
           <div style={{
-            background: 'var(--accent-primary)',
-            color: '#000',
-            width: '45px',
-            height: '45px',
-            borderRadius: '12px',
+            background: 'var(--accent-blue)',
+            color: '#0d1117',
+            width: '38px',
+            height: '38px',
+            borderRadius: '6px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: '0.75rem',
-            boxShadow: 'var(--shadow-glow)'
+            marginBottom: '0.5rem'
           }}>
-            <CheckSquare size={24} />
+            <CheckSquare size={20} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', letterSpacing: '-0.02em', color: '#f0f6fc' }}>
-            Welcome Back
+          <h2 style={{ fontSize: '1.4rem', color: 'var(--text-main)' }}>
+            Sign In
           </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            Sign in to manage your tasks and access control
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+            Enter your credentials to enter your workspace
           </p>
         </div>
 
-        {/* Dynamic Security Errors */}
+        {/* Dynamic Errors */}
         {(formError || error) && (
           <div style={{
-            background: 'rgba(248, 81, 73, 0.12)',
-            border: '1px solid rgba(248, 81, 73, 0.25)',
-            color: 'var(--accent-danger)',
-            padding: '0.75rem 1rem',
-            borderRadius: '8px',
-            fontSize: '0.85rem',
-            marginBottom: '1.5rem',
+            background: 'rgba(255, 123, 114, 0.1)',
+            border: '1px solid rgba(255, 123, 114, 0.2)',
+            color: 'var(--accent-red)',
+            padding: '0.5rem 0.75rem',
+            borderRadius: '6px',
+            fontSize: '0.75rem',
+            marginBottom: '1rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
+            gap: '0.4rem'
           }}>
-            <ShieldAlert size={16} style={{ flexShrink: 0 }} />
+            <ShieldAlert size={14} style={{ flexShrink: 0 }} />
             <span>{formError || error}</span>
           </div>
         )}
@@ -113,70 +111,50 @@ const Login = () => {
             <label className="form-label" htmlFor="email-input">
               Email Address
             </label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={16} color="var(--text-dimmed)" style={{
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)'
-              }} />
-              <input
-                id="email-input"
-                type="email"
-                className="form-input"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
-                required
-              />
-            </div>
+            <input
+              id="email-input"
+              type="email"
+              className="form-input"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
-          <div className="form-group" style={{ marginBottom: '1.75rem' }}>
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
             <label className="form-label" htmlFor="password-input">
               Password
             </label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={16} color="var(--text-dimmed)" style={{
-                position: 'absolute',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)'
-              }} />
-              <input
-                id="password-input"
-                type="password"
-                className="form-input"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
-                required
-              />
-            </div>
+            <input
+              id="password-input"
+              type="password"
+              className="form-input"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.85rem' }}>
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.7rem' }}>
             Sign In Account
           </button>
         </form>
 
-        {/* Link to register */}
         <div style={{
           textAlign: 'center',
-          marginTop: '1.5rem',
-          fontSize: '0.875rem',
+          marginTop: '1.25rem',
+          fontSize: '0.8rem',
           color: 'var(--text-muted)'
         }}>
-          New to the platform?{' '}
+          New here?{' '}
           <Link to="/register" style={{
-            color: 'var(--accent-primary)',
+            color: 'var(--accent-blue)',
             textDecoration: 'none',
-            fontWeight: 600,
-            transition: 'var(--transition-smooth)'
-          }} onMouseOver={(e) => e.target.style.textDecoration = 'underline'} onMouseOut={(e) => e.target.style.textDecoration = 'none'}>
-            Register Here
+            fontWeight: 600
+          }}>
+            Register Workspace
           </Link>
         </div>
       </div>
