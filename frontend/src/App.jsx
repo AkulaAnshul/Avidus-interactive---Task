@@ -1,122 +1,172 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Page Components
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import UserManagement from './pages/UserManagement';
+import TaskMonitoring from './pages/TaskMonitoring';
+import ActivityLogs from './pages/ActivityLogs';
+
+// Beautiful Landing Component for the root path (/)
+const LandingPage = () => {
+  const { user } = useAuth();
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '75vh',
+      textAlign: 'center',
+      padding: '2rem 1.5rem',
+      animation: 'fadeIn 0.5s ease-out'
+    }}>
+      <div className="glass-card" style={{
+        maxWidth: '650px',
+        width: '100%',
+        padding: '3rem 2rem',
+        borderTop: '5px solid var(--accent-primary)',
+        position: 'relative'
+      }}>
+        <h1 style={{
+          fontSize: '2.75rem',
+          fontWeight: 800,
+          letterSpacing: '-0.04em',
+          lineHeight: 1.15,
+          color: '#f0f6fc',
+          fontFamily: "'Outfit', sans-serif",
+          marginBottom: '1rem'
+        }}>
+          Advanced Access Control & Task Monitoring
+        </h1>
+        <p style={{
+          color: 'var(--text-muted)',
+          fontSize: '1.05rem',
+          maxWidth: '520px',
+          margin: '0 auto 2.5rem auto',
+          lineHeight: 1.6
+        }}>
+          Experience granular role-based permissions (RBAC) and real-time database activity tracking logs inside a premium dark glassmorphic task manager environment.
+        </p>
 
-      <div className="ticks"></div>
+        {user ? (
+          <div>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1.25rem', fontSize: '0.95rem' }}>
+              Currently signed in as <strong style={{ color: '#fff' }}>{user.name}</strong> ({user.role})
+            </p>
+            <Link
+              to={user.role === 'Admin' ? '/admin' : '/dashboard'}
+              className="btn btn-primary"
+              style={{ padding: '0.85rem 2rem' }}
+            >
+              Enter My Console Deck
+            </Link>
+          </div>
+        ) : (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '1rem',
+            flexWrap: 'wrap'
+          }}>
+            <Link
+              to="/login"
+              className="btn btn-primary"
+              style={{ padding: '0.85rem 2rem' }}
+            >
+              Sign In Account
+            </Link>
+            <Link
+              to="/register"
+              className="btn btn-secondary"
+              style={{ padding: '0.85rem 2rem' }}
+            >
+              Register Workspace
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+// Main App Router structure
+const AppRoutes = () => {
+  return (
+    <div className="app-container">
+      <Navbar />
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* Protected User Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected Admin Routes */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <UserManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/tasks"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <TaskMonitoring />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/logs"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <ActivityLogs />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback Catch-All Redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
+  );
 }
 
-export default App
+export default App;
