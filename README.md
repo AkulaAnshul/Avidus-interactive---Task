@@ -1,10 +1,6 @@
-# Avidus Task - Basic RBAC Task Manager & Activity Tracker
+# Avidus Task - MongoDB RBAC Task Manager & Activity Tracker
 
-A lightweight, zero-configuration full-stack web application designed to demonstrate robust **Role-Based Access Control (RBAC)** and real-time **User Activity Auditing**. 
-
-This project is built using an **Express.js backend** powered by a persistent **Local JSON File Database (`db.json`)** and a **basic, clean React.js (Vite) frontend**. 
-
-> **No MongoDB, Docker, or external database engines are required!** The application is 100% portable and runs instantly on any machine by reading and writing records straight to a local text file.
+A full-stack web application designed to demonstrate robust **Role-Based Access Control (RBAC)** and real-time **User Activity Auditing** powered by **Node.js, Express, MongoDB (Mongoose)** and **React.js**.
 
 ---
 
@@ -12,7 +8,7 @@ This project is built using an **Express.js backend** powered by a persistent **
 1. **Granular Access Control (RBAC)**: Enforces clear permission locks. Regular users manage only their own tasks, while administrators have system-wide oversight (deactivating users, auditing logs, viewing and deleting any task).
 2. **Account Status Guard**: A security check blocks logins and API access instantly if a user's status is toggled to `Inactive` by an Admin.
 3. **Audit Trail Logging**: Database mutations and logins automatically log an audit trail containing user emails, roles, exact actions, client IP addresses, and timestamps.
-4. **Setup-Free Architecture**: Operates on a flat `db.json` file which persists all changes in real-time, even when backend servers restart.
+4. **Data Hashing**: Integrates Mongoose pre-save hooks utilizing `bcryptjs` to encrypt passwords securely inside database records.
 
 ---
 
@@ -21,18 +17,22 @@ This project is built using an **Express.js backend** powered by a persistent **
 Avidus Task/
 ├── backend/
 │   ├── config/
-│   │   └── db.js            # Custom JSON database read/write helpers
+│   │   └── db.js            # MongoDB Mongoose connection config
 │   ├── controllers/
 │   │   ├── adminController.js # Users deactivation, analytics & logs audit APIs
-│   │   ├── authController.js  # Registration & Login endpoints (plain-text passwords)
+│   │   ├── authController.js  # Registration & Login endpoints
 │   │   └── taskController.js  # Scoped CRUD handlers (User own tasks vs Admin global tasks)
 │   ├── middleware/
-│   │   ├── activityLogger.js  # Records audit trail entries to db.json
+│   │   ├── activityLogger.js  # Records audit trail entries to MongoDB
 │   │   └── authMiddleware.js  # JWT parser, Active status check, & Admin role guard
+│   ├── models/
+│   │   ├── ActivityLog.js     # MongoDB Schema for activity logs
+│   │   ├── Task.js            # MongoDB Schema for task documents
+│   │   └── User.js            # MongoDB Schema for users (encrypted credentials)
 │   ├── routes/
 │   │   └── api.js             # Unified API router
-│   ├── db.json                # Local database text file (pre-seeded with accounts)
-│   ├── package.json           # Backend Express dependencies
+│   ├── seed.js                # Database seeder utility
+│   ├── package.json           # Backend dependencies
 │   └── server.js              # Express app launcher
 └── frontend/
     ├── src/
@@ -42,7 +42,7 @@ Avidus Task/
     │   ├── context/
     │   │   └── AuthContext.jsx    # Client session controller (JWT sync to localStorage)
     │   ├── pages/
-    │   │   ├── AdminDashboard.jsx # KPI aggregate boards and progress metrics
+    │   │   ├── AdminDashboard.jsx # KPI stats cards and platform progress metrics
     │   │   ├── Dashboard.jsx      # Personal workspace with checkboxes & ratio bar
     │   │   ├── Login.jsx          # Simple login view
     │   │   ├── Register.jsx       # Simple register view (Dropdown role selection)
@@ -59,27 +59,43 @@ Avidus Task/
 
 ## Quick Startup Guide
 
-Follow these simple steps to run the application locally:
+Follow these steps to run the application locally on a machine equipped with MongoDB:
 
 ### Prerequisites
-Make sure you have [Node.js](https://nodejs.org/) installed (v16.x or newer is recommended).
+Make sure you have [Node.js](https://nodejs.org/) and [MongoDB](https://www.mongodb.com/) installed and running locally on port `27017` (default).
 
-### 1. Launch the Backend Server (Port 5000)
-1. Open your terminal and navigate to the `backend/` directory:
+### 1. Configure Environmental Settings
+Navigate to the `backend/` directory, create a `.env` file, and populate the configuration keys:
+```env
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/avidus_task
+JWT_SECRET=avidus_super_secret_jwt_token_key_12345
+```
+
+### 2. Seed the MongoDB Database
+Before starting the servers, run our automated database seeder to wipe old documents and seed default Administrator and User credentials:
+1. Open your terminal in the `backend/` directory:
    ```bash
    cd backend
    ```
-2. Start the Express server:
+2. Run the seed script:
+   ```bash
+   node seed.js
+   ```
+3. The terminal will output details of seeded users, tasks, and initial activity logs.
+
+### 3. Launch the Backend Server (Port 5000)
+1. Start the Express server:
    ```bash
    npm start
    ```
-3. The terminal will print:
+2. The terminal will print:
    ```
-   Local JSON File Database initialized successfully.
+   MongoDB Connected: 127.0.0.1
    Server running in development mode on port 5000
    ```
 
-### 2. Launch the Frontend Server (Port 5173)
+### 4. Launch the Frontend Server (Port 5173)
 1. Open a second terminal window and navigate to the `frontend/` directory:
    ```bash
    cd frontend
@@ -119,7 +135,7 @@ The database comes pre-configured with the following credentials to make E2E val
 
 ### Authentication Routes (`/api/auth`)
 - `POST /register`: Registers a new account.
-- `POST /login`: authenticates email and password, generates a JWT, and creates a `Login` log.
+- `POST /login`: Authenticates email and password, generates a JWT, and creates a `Login` log.
 - `GET /me` (Private): Retrieves the currently authenticated user session.
 
 ### Task Workspace Routes (`/api/tasks`)
