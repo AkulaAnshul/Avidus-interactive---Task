@@ -1,6 +1,4 @@
-const User = require('../models/User');
-const Task = require('../models/Task');
-const ActivityLog = require('../models/ActivityLog');
+const { readDB, writeDB } = require('../config/db');
 const { logActivity } = require('../middleware/activityLogger');
 
 // @desc    View all registered users
@@ -8,11 +6,14 @@ const { logActivity } = require('../middleware/activityLogger');
 // @access  Private (Admin Only)
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}).select('-password');
+    const db = readDB();
+    // Exclude password from the results
+    const safeUsers = db.users.map(({ password, ...u }) => u);
+    
     res.json({
       success: true,
-      count: users.length,
-      users
+      count: safeUsers.length,
+      users: safeUsers
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -30,26 +31,31 @@ const updateUserStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide a valid status (Active or Inactive)' });
     }
 
-    const user = await User.findById(req.params.id);
-    if (!user) {
+    const db = readDB();
+    const userIndex = db.users.findIndex(u => u.id === req.params.id);
+
+    if (userIndex === -1) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
+    const user = db.users[userIndex];
+
     // Prevent Admin from deactivating themselves
-    if (user._id.toString() === req.user._id.toString()) {
+    if (user.id === req.user.id) {
       return res.status(400).json({ success: false, message: 'You cannot deactivate your own account.' });
     }
 
     const oldStatus = user.status;
     user.status = status;
-    await user.save();
+    db.users[userIndex] = user;
+    writeDB(db);
 
     // Log admin action
     await logActivity(
-      req.user._id,
+      req.user.id,
       req.user.email,
       req.user.role,
-      'Login', // Category of audit, let's keep it clean or make it a specific login activity type if desired
+      'Login', 
       `Admin changed status of user "${user.email}" from ${oldStatus} to ${status}`,
       req
     );
@@ -58,7 +64,7 @@ const updateUserStatus = async (req, res) => {
       success: true,
       message: `User status successfully updated to ${status}`,
       user: {
-        _id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -75,30 +81,36 @@ const updateUserStatus = async (req, res) => {
 // @access  Private (Admin Only)
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const db = readDB();
+    const userIndex = db.users.findIndex(u => u.id === req.params.id);
 
-    if (!user) {
+    if (userIndex === -1) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
+    const user = db.users[userIndex];
+
     // Prevent Admin from deleting themselves
-    if (user._id.toString() === req.user._id.toString()) {
+    if (user.id === req.user.id) {
       return res.status(400).json({ success: false, message: 'You cannot delete your own admin account.' });
     }
 
     // Cascade delete tasks created by this user
-    const deletedTasksCount = await Task.deleteMany({ creator: req.params.id });
+    const originalTasksLength = db.tasks.length;
+    db.tasks = db.tasks.filter(t => t.creator !== req.params.id);
+    const deletedTasksCount = originalTasksLength - db.tasks.length;
 
     // Delete user
-    await User.findByIdAndDelete(req.params.id);
+    db.users.splice(userIndex, 1);
+    writeDB(db);
 
     // Log admin action
     await logActivity(
-      req.user._id,
+      req.user.id,
       req.user.email,
       req.user.role,
-      'Task Deletion', // Fit Category
-      `Admin deleted user "${user.email}" and cascade-removed ${deletedTasksCount.deletedCount} tasks`,
+      'Task Deletion',
+      `Admin deleted user "${user.email}" and cascade-removed ${deletedTasksCount} tasks`,
       req
     );
 
@@ -116,10 +128,12 @@ const deleteUser = async (req, res) => {
 // @access  Private (Admin Only)
 const getAdminAnalytics = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments({});
-    const totalTasks = await Task.countDocuments({});
-    const completedTasks = await Task.countDocuments({ status: 'Completed' });
-    const pendingTasks = await Task.countDocuments({ status: 'Pending' });
+    const db = readDB();
+
+    const totalUsers = db.users.length;
+    const totalTasks = db.tasks.length;
+    const completedTasks = db.tasks.filter(t => t.status === 'Completed').length;
+    const pendingTasks = db.tasks.filter(t => t.status === 'Pending').length;
 
     res.json({
       success: true,
@@ -140,15 +154,15 @@ const getAdminAnalytics = async (req, res) => {
 // @access  Private (Admin Only)
 const getActivityLogs = async (req, res) => {
   try {
-    // Sort by latest timestamp first
-    const logs = await ActivityLog.find({})
-      .sort({ timestamp: -1 })
-      .limit(100); // Limit to last 100 for performance
+    const db = readDB();
+
+    // Sort by latest timestamp first (newest entries added last in JSON database)
+    const sortedLogs = [...db.logs].reverse().slice(0, 100);
 
     res.json({
       success: true,
-      count: logs.length,
-      logs
+      count: sortedLogs.length,
+      logs: sortedLogs
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
