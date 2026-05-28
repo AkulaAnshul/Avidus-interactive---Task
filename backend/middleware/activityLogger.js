@@ -1,7 +1,7 @@
-const ActivityLog = require('../models/ActivityLog');
+const { readDB, writeDB } = require('../config/db');
 
 /**
- * Utility function to write a new activity log to the database.
+ * Utility function to write a new activity log entry to the local JSON database file.
  * Can be imported and invoked inside route controllers upon successful events.
  *
  * @param {string} userId - ID of the user performing the action
@@ -13,16 +13,24 @@ const ActivityLog = require('../models/ActivityLog');
  */
 const logActivity = async (userId, email, role, action, details, req) => {
   try {
-    const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    const ipAddress = req ? (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1') : '127.0.0.1';
     
-    await ActivityLog.create({
+    const db = readDB();
+    
+    // Create new log record with robust unique ID
+    const newLog = {
+      id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
       userId,
       email,
       role,
       action,
       details,
-      ipAddress
-    });
+      ipAddress,
+      timestamp: new Date().toISOString()
+    };
+    
+    db.logs.push(newLog);
+    writeDB(db);
   } catch (error) {
     console.error(`Failed to record Activity Log: ${error.message}`);
   }
