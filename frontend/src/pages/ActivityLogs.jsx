@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ShieldAlert, Search, RefreshCw, Calendar, Terminal, Network } from 'lucide-react';
+import { ShieldAlert, RefreshCw, Calendar, Terminal, Network } from 'lucide-react';
 
 const ActivityLogs = () => {
   const { token, API_URL } = useAuth();
@@ -181,7 +181,7 @@ const ActivityLogs = () => {
               </thead>
               <tbody>
                 {filteredLogs.map((log) => (
-                  <tr key={log.id}>
+                  <tr key={log._id}>
                     {/* Timestamp */}
                     <td style={{ whiteSpace: 'nowrap', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
@@ -222,7 +222,7 @@ const ActivityLogs = () => {
 
                     {/* IP */}
                     <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2', paddingLeft: 0 }}>
                         <Network size={10} />
                         <span>{log.ipAddress}</span>
                       </div>

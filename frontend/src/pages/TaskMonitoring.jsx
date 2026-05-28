@@ -107,6 +107,7 @@ const TaskMonitoring = () => {
         </div>
       )}
 
+      {/* Notifications */}
       {success && (
         <div className="glass-card" style={{
           borderColor: 'var(--accent-green)',
@@ -180,7 +181,7 @@ const TaskMonitoring = () => {
         }}>
           {filteredTasks.map((task) => (
             <div
-              key={task.id}
+              key={task._id}
               className="glass-card"
               style={{
                 display: 'flex',
@@ -255,7 +256,7 @@ const TaskMonitoring = () => {
                   </div>
 
                   <button
-                    onClick={() => handleDeleteTask(task.id, task.title)}
+                    onClick={() => handleDeleteTask(task._id, task.title)}
                     className="btn btn-danger"
                     style={{
                       padding: '0.3rem 0.5rem',
