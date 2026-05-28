@@ -3,12 +3,11 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-const { readDB } = require('./config/db');
+const connectDB = require('./config/db');
 const apiRoutes = require('./routes/api');
 
-// Initialize and verify the local JSON database file exists on server boot
-readDB();
-console.log('Local JSON File Database initialized successfully.');
+// Initialize MongoDB Database Connection
+connectDB();
 
 const app = express();
 
@@ -28,7 +27,7 @@ app.use('/api', apiRoutes);
 
 // Root Health check route
 app.get('/', (req, res) => {
-  res.json({ message: 'Avidus JSON DB Task Manager API is running smoothly!' });
+  res.json({ message: 'Avidus MongoDB Task Manager API is running smoothly!' });
 });
 
 // Global Fallback Error Handler

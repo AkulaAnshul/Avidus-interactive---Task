@@ -14,7 +14,7 @@ const seedDB = async () => {
     await User.deleteMany({});
     await Task.deleteMany({});
     await ActivityLog.deleteMany({});
-    console.log('Cleared existing Users, Tasks, and Activity Logs.');
+    console.log('Cleared existing Users, Tasks, and Activity Logs in MongoDB.');
 
     // Seed Admin Account
     const adminUser = await User.create({
@@ -48,15 +48,15 @@ const seedDB = async () => {
 
     // Seed some initial Tasks
     const task1 = await Task.create({
-      title: 'Design System Implementation',
-      description: 'Implement premium vanilla CSS glassmorphic components in frontend.',
+      title: 'Design System Integration',
+      description: 'Implement clean CSS dark-themed components in frontend.',
       status: 'Completed',
       creator: standardUser._id
     });
     console.log('Seeded Task 1 owned by John');
 
     const task2 = await Task.create({
-      title: 'E2E Testing',
+      title: 'E2E Integration Testing',
       description: 'Verify routing protections and activity logs backend compliance.',
       status: 'Pending',
       creator: standardUser._id
@@ -64,8 +64,8 @@ const seedDB = async () => {
     console.log('Seeded Task 2 owned by John');
 
     const task3 = await Task.create({
-      title: 'Database Security Sweep',
-      description: 'Enforce access scopes on task collection operations.',
+      title: 'System Integrity Check',
+      description: 'Ensure that MongoDB database locking matches client sessions.',
       status: 'Pending',
       creator: adminUser._id
     });
@@ -98,7 +98,7 @@ const seedDB = async () => {
         ipAddress: '127.0.0.1'
       }
     ]);
-    console.log('Seeded initial audit activity logs.');
+    console.log('Seeded initial activity audit logs.');
 
     console.log('Database Seeding Completed Successfully!');
     process.exit(0);
