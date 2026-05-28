@@ -13,7 +13,7 @@ import UserManagement from './pages/UserManagement';
 import TaskMonitoring from './pages/TaskMonitoring';
 import ActivityLogs from './pages/ActivityLogs';
 
-// Beautiful Landing Component for the root path (/)
+// Clean Landing Component for the root path (/)
 const LandingPage = () => {
   const { user } = useAuth();
 
@@ -23,70 +23,69 @@ const LandingPage = () => {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      minHeight: '75vh',
+      minHeight: '70vh',
       textAlign: 'center',
-      padding: '2rem 1.5rem',
-      animation: 'fadeIn 0.5s ease-out'
+      padding: '2rem 1rem',
+      animation: 'fadeIn 0.4s ease-out'
     }}>
       <div className="glass-card" style={{
-        maxWidth: '650px',
+        maxWidth: '550px',
         width: '100%',
-        padding: '3rem 2rem',
-        borderTop: '5px solid var(--accent-primary)',
+        padding: '2.5rem 1.5rem',
+        borderTop: '4px solid var(--accent-blue)',
         position: 'relative'
       }}>
         <h1 style={{
-          fontSize: '2.75rem',
+          fontSize: '2.2rem',
           fontWeight: 800,
-          letterSpacing: '-0.04em',
-          lineHeight: 1.15,
-          color: '#f0f6fc',
-          fontFamily: "'Outfit', sans-serif",
+          letterSpacing: '-0.03em',
+          lineHeight: 1.2,
+          color: 'var(--text-main)',
           marginBottom: '1rem'
         }}>
-          Advanced Access Control & Task Monitoring
+          Granular RBAC & Task Audits
         </h1>
         <p style={{
           color: 'var(--text-muted)',
-          fontSize: '1.05rem',
-          maxWidth: '520px',
-          margin: '0 auto 2.5rem auto',
-          lineHeight: 1.6
+          fontSize: '0.95rem',
+          maxWidth: '440px',
+          margin: '0 auto 2rem auto',
+          lineHeight: 1.5
         }}>
-          Experience granular role-based permissions (RBAC) and real-time database activity tracking logs inside a premium dark glassmorphic task manager environment.
+          Experience simplified role-based access control and persistent user activity logging inside a setup-free React and Node.js environment.
         </p>
 
         {user ? (
           <div>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.25rem', fontSize: '0.95rem' }}>
-              Currently signed in as <strong style={{ color: '#fff' }}>{user.name}</strong> ({user.role})
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.85rem' }}>
+              Signed in as <strong>{user.name}</strong> ({user.role})
             </p>
             <Link
               to={user.role === 'Admin' ? '/admin' : '/dashboard'}
               className="btn btn-primary"
-              style={{ padding: '0.85rem 2rem' }}
+              style={{ padding: '0.7rem 1.5rem' }}
             >
-              Enter My Console Deck
+              Enter Workspace
             </Link>
           </div>
         ) : (
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            gap: '1rem',
+            gap: '0.75rem',
             flexWrap: 'wrap'
           }}>
             <Link
               to="/login"
               className="btn btn-primary"
-              style={{ padding: '0.85rem 2rem' }}
+              style={{ padding: '0.7rem 1.5rem' }}
             >
               Sign In Account
             </Link>
             <Link
               to="/register"
               className="btn btn-secondary"
-              style={{ padding: '0.85rem 2rem' }}
+              style={{ padding: '0.7rem 1.5rem' }}
             >
               Register Workspace
             </Link>
@@ -97,7 +96,7 @@ const LandingPage = () => {
   );
 };
 
-// Main App Router structure
+// Main App Router
 const AppRoutes = () => {
   return (
     <div className="app-container">
