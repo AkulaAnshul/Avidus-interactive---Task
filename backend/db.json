@@ -1,0 +1,72 @@
+{
+  "users": [
+    {
+      "id": "user_1",
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "password": "password123",
+      "role": "Admin",
+      "status": "Active",
+      "createdAt": "2026-05-28T06:00:00.000Z"
+    },
+    {
+      "id": "user_2",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "password": "password123",
+      "role": "User",
+      "status": "Active",
+      "createdAt": "2026-05-28T06:00:00.000Z"
+    },
+    {
+      "id": "user_3",
+      "name": "Disabled User",
+      "email": "disabled@example.com",
+      "password": "password123",
+      "role": "User",
+      "status": "Inactive",
+      "createdAt": "2026-05-28T06:00:00.000Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task_1",
+      "title": "Design System Integration",
+      "description": "Implement clean CSS dark-themed components in frontend.",
+      "status": "Completed",
+      "creator": "user_2",
+      "createdAt": "2026-05-28T06:05:00.000Z",
+      "updatedAt": "2026-05-28T06:05:00.000Z"
+    },
+    {
+      "id": "task_2",
+      "title": "E2E Integration Testing",
+      "description": "Verify routing protections and activity logs backend compliance.",
+      "status": "Pending",
+      "creator": "user_2",
+      "createdAt": "2026-05-28T06:06:00.000Z",
+      "updatedAt": "2026-05-28T06:06:00.000Z"
+    },
+    {
+      "id": "task_3",
+      "title": "System Integrity Check",
+      "description": "Ensure that local JSON file database locking matches client sessions.",
+      "status": "Pending",
+      "creator": "user_1",
+      "createdAt": "2026-05-28T06:07:00.000Z",
+      "updatedAt": "2026-05-28T06:07:00.000Z"
+    }
+  ],
+  "logs": [
+    {
+      "id": "log_1",
+      "userId": "user_1",
+      "email": "admin@example.com",
+      "role": "Admin",
+      "action": "Login",
+      "details": "Admin account seeded and provisioned",
+      "ipAddress": "127.0.0.1",
+      "timestamp": "2026-05-28T06:00:05.000Z"
+    }
+  ]
+}
