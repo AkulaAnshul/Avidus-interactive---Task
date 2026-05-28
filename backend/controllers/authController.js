@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const { readDB, writeDB } = require('../config/db');
 const { logActivity } = require('../middleware/activityLogger');
 
-// Helper to generate JWT token
+// Helper to generate JWT token based on file user ID
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'avidus_super_secret_jwt_token_key_12345', {
     expiresIn: '30d'
@@ -16,48 +16,53 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Please fill in all requested fields' });
+    }
+
+    const db = readDB();
+
     // Check if user already exists
-    const userExists = await User.findOne({ email });
+    const userExists = db.users.find(u => u.email.toLowerCase() === email.toLowerCase().trim());
     if (userExists) {
       return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
-    // Create user. Limit role assignment (only 'User' or 'Admin' if supplied, defaulting to 'User')
-    const userRole = role && ['Admin', 'User'].includes(role) ? role : 'User';
-
-    const user = await User.create({
+    // Create user object
+    const newUser = {
+      id: `user_${Date.now()}`,
       name,
-      email,
-      password,
-      role: userRole,
-      status: 'Active' // Default to Active
+      email: email.toLowerCase().trim(),
+      password, // Plain text passwords as requested for ultimate simplicity
+      role: role && ['Admin', 'User'].includes(role) ? role : 'User',
+      status: 'Active',
+      createdAt: new Date().toISOString()
+    };
+
+    db.users.push(newUser);
+    writeDB(db);
+
+    // Log auto-login activity
+    await logActivity(
+      newUser.id,
+      newUser.email,
+      newUser.role,
+      'Login',
+      `User registered and logged in automatically`,
+      req
+    );
+
+    res.status(201).json({
+      success: true,
+      token: generateToken(newUser.id),
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        status: newUser.status
+      }
     });
-
-    if (user) {
-      // Log auto-login activity during registration
-      await logActivity(
-        user._id,
-        user.email,
-        user.role,
-        'Login',
-        `User registered and logged in automatically`,
-        req
-      );
-
-      res.status(201).json({
-        success: true,
-        token: generateToken(user._id),
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          status: user.status
-        }
-      });
-    } else {
-      res.status(400).json({ success: false, message: 'Invalid user data' });
-    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -70,10 +75,21 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email and select password explicitly (since select: false in schema)
-    const user = await User.findOne({ email }).select('+password');
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Please provide an email and password' });
+    }
+
+    const db = readDB();
+
+    // Find user by email
+    const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase().trim());
 
     if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    // Verify password matching (simple plain-text comparison for absolute simplicity)
+    if (user.password !== password) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
@@ -82,15 +98,9 @@ const loginUser = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Access denied. Your account is currently inactive. Please contact an admin.' });
     }
 
-    // Verify password
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
-    }
-
     // Log login activity
     await logActivity(
-      user._id,
+      user.id,
       user.email,
       user.role,
       'Login',
@@ -100,9 +110,9 @@ const loginUser = async (req, res) => {
 
     res.json({
       success: true,
-      token: generateToken(user._id),
+      token: generateToken(user.id),
       user: {
-        _id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -119,7 +129,7 @@ const loginUser = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
   try {
-    // req.user is set by authMiddleware
+    // req.user was set by authMiddleware
     res.json({
       success: true,
       user: req.user
