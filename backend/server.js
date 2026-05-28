@@ -3,11 +3,12 @@ const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
 
-const connectDB = require('./config/db');
+const { readDB } = require('./config/db');
 const apiRoutes = require('./routes/api');
 
-// Initialize Database Connection
-connectDB();
+// Initialize and verify the local JSON database file exists on server boot
+readDB();
+console.log('Local JSON File Database initialized successfully.');
 
 const app = express();
 
@@ -20,16 +21,14 @@ app.use(cors({
 app.use(express.json());
 
 // Enable HTTP Request logging in dev environments
-if (process.env.NODE_ENV !== 'production') {
-  app.use(morgan('dev'));
-}
+app.use(morgan('dev'));
 
 // API Routes mounting point
 app.use('/api', apiRoutes);
 
 // Root Health check route
 app.get('/', (req, res) => {
-  res.json({ message: 'RBAC Task Manager API is running smoothly!' });
+  res.json({ message: 'Avidus JSON DB Task Manager API is running smoothly!' });
 });
 
 // Global Fallback Error Handler
