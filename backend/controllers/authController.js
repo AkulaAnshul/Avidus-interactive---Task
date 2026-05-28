@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
-const { readDB, writeDB } = require('../config/db');
+const User = require('../models/User');
 const { logActivity } = require('../middleware/activityLogger');
 
-// Helper to generate JWT token based on file user ID
+// Helper to generate JWT token based on Mongoose ObjectId
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'avidus_super_secret_jwt_token_key_12345', {
     expiresIn: '30d'
@@ -20,49 +20,46 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please fill in all requested fields' });
     }
 
-    const db = readDB();
-
     // Check if user already exists
-    const userExists = db.users.find(u => u.email.toLowerCase() === email.toLowerCase().trim());
+    const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
-    // Create user object
-    const newUser = {
-      id: `user_${Date.now()}`,
+    // Create user object. Password encryption automatically happens in User pre-save schema hook!
+    const newUser = await User.create({
       name,
       email: email.toLowerCase().trim(),
-      password, // Plain text passwords as requested for ultimate simplicity
+      password,
       role: role && ['Admin', 'User'].includes(role) ? role : 'User',
-      status: 'Active',
-      createdAt: new Date().toISOString()
-    };
-
-    db.users.push(newUser);
-    writeDB(db);
-
-    // Log auto-login activity
-    await logActivity(
-      newUser.id,
-      newUser.email,
-      newUser.role,
-      'Login',
-      `User registered and logged in automatically`,
-      req
-    );
-
-    res.status(201).json({
-      success: true,
-      token: generateToken(newUser.id),
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        status: newUser.status
-      }
+      status: 'Active'
     });
+
+    if (newUser) {
+      // Log auto-login activity
+      await logActivity(
+        newUser._id,
+        newUser.email,
+        newUser.role,
+        'Login',
+        `User registered and logged in automatically`,
+        req
+      );
+
+      res.status(201).json({
+        success: true,
+        token: generateToken(newUser._id),
+        user: {
+          _id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+          status: newUser.status
+        }
+      });
+    } else {
+      res.status(400).json({ success: false, message: 'Invalid user data' });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -79,17 +76,10 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide an email and password' });
     }
 
-    const db = readDB();
-
-    // Find user by email
-    const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase().trim());
+    // Find user by email, select password explicitly (since select: false in schema)
+    const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
-    }
-
-    // Verify password matching (simple plain-text comparison for absolute simplicity)
-    if (user.password !== password) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
@@ -98,9 +88,15 @@ const loginUser = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Access denied. Your account is currently inactive. Please contact an admin.' });
     }
 
+    // Verify hashed password
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
     // Log login activity
     await logActivity(
-      user.id,
+      user._id,
       user.email,
       user.role,
       'Login',
@@ -110,9 +106,9 @@ const loginUser = async (req, res) => {
 
     res.json({
       success: true,
-      token: generateToken(user.id),
+      token: generateToken(user._id),
       user: {
-        id: user.id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
