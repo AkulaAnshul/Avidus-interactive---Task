@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const { readDB } = require('../config/db');
 
-// Protect routes - JWT verification & active status guard
+// Protect routes - JWT verification & active status guard (file-based)
 const protect = async (req, res, next) => {
   let token;
 
@@ -14,21 +14,26 @@ const protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'avidus_super_secret_jwt_token_key_12345');
 
-      // Get user from the token, excluding password
-      req.user = await User.findById(decoded.id).select('-password');
+      // Query local JSON database instead of MongoDB
+      const db = readDB();
+      const user = db.users.find(u => u.id === decoded.id);
 
-      if (!req.user) {
+      if (!user) {
         return res.status(401).json({ success: false, message: 'Not authorized, user not found' });
       }
 
       // Check if user status is Inactive
-      if (req.user.status === 'Inactive') {
+      if (user.status === 'Inactive') {
         return res.status(403).json({ success: false, message: 'Access denied. Your account is currently inactive. Please contact an admin.' });
       }
 
+      // Attach user object to request (excluding password for security)
+      const { password, ...safeUser } = user;
+      req.user = safeUser;
+
       next();
     } catch (error) {
-      console.error(error);
+      console.error('Middleware JWT Error:', error.message);
       return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
     }
   }
