@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-const { readDB } = require('../config/db');
+const User = require('../models/User');
 
-// Protect routes - JWT verification & active status guard (file-based)
+// Protect routes - JWT verification & active status guard (MongoDB)
 const protect = async (req, res, next) => {
   let token;
 
@@ -14,22 +14,17 @@ const protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'avidus_super_secret_jwt_token_key_12345');
 
-      // Query local JSON database instead of MongoDB
-      const db = readDB();
-      const user = db.users.find(u => u.id === decoded.id);
+      // Get user from the token, excluding password
+      req.user = await User.findById(decoded.id).select('-password');
 
-      if (!user) {
+      if (!req.user) {
         return res.status(401).json({ success: false, message: 'Not authorized, user not found' });
       }
 
       // Check if user status is Inactive
-      if (user.status === 'Inactive') {
+      if (req.user.status === 'Inactive') {
         return res.status(403).json({ success: false, message: 'Access denied. Your account is currently inactive. Please contact an admin.' });
       }
-
-      // Attach user object to request (excluding password for security)
-      const { password, ...safeUser } = user;
-      req.user = safeUser;
 
       next();
     } catch (error) {
