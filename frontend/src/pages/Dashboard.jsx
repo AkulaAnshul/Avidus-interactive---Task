@@ -82,7 +82,7 @@ const Dashboard = () => {
   const handleToggleStatus = async (task) => {
     try {
       const newStatus = task.status === 'Completed' ? 'Pending' : 'Completed';
-      const response = await fetch(`${API_URL}/tasks/${task.id}`, {
+      const response = await fetch(`${API_URL}/tasks/${task._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ const Dashboard = () => {
 
   // Start edit handler
   const handleStartEdit = (task) => {
-    setEditingTaskId(task.id);
+    setEditingTaskId(task._id);
     setEditTitle(task.title);
     setEditDescription(task.description);
   };
@@ -313,7 +313,7 @@ const Dashboard = () => {
         }}>
           {tasks.map((task) => (
             <div
-              key={task.id}
+              key={task._id}
               className="glass-card"
               style={{
                 display: 'flex',
@@ -324,7 +324,7 @@ const Dashboard = () => {
                 marginBottom: 0
               }}
             >
-              {editingTaskId === task.id ? (
+              {editingTaskId === task._id ? (
                 /* Edit State Form */
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
@@ -346,7 +346,7 @@ const Dashboard = () => {
                     />
                   </div>
                   <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.25rem' }}>
-                    <button onClick={() => handleSaveEdit(task.id)} className="btn btn-primary" style={{ padding: '0.35rem 0.7rem' }}>
+                    <button onClick={() => handleSaveEdit(task._id)} className="btn btn-primary" style={{ padding: '0.35rem 0.7rem' }}>
                       <Save size={12} /> Save
                     </button>
                     <button onClick={() => setEditingTaskId(null)} className="btn btn-secondary" style={{ padding: '0.35rem 0.7rem' }}>
@@ -444,7 +444,7 @@ const Dashboard = () => {
 
                       {/* Delete */}
                       <button
-                        onClick={() => handleDeleteTask(task.id)}
+                        onClick={() => handleDeleteTask(task._id)}
                         style={{
                           background: 'none',
                           border: 'none',
