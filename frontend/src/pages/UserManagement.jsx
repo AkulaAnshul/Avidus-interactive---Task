@@ -39,14 +39,14 @@ const UserManagement = () => {
     setError('');
     setSuccess('');
 
-    if (user.id === currentUser.id) {
+    if (user._id === currentUser._id) {
       setError('Safety Override: You cannot deactivate your own account!');
       return;
     }
 
     try {
       const newStatus = user.status === 'Active' ? 'Inactive' : 'Active';
-      const response = await fetch(`${API_URL}/admin/users/${user.id}/status`, {
+      const response = await fetch(`${API_URL}/admin/users/${user._id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ const UserManagement = () => {
     setError('');
     setSuccess('');
 
-    if (user.id === currentUser.id) {
+    if (user._id === currentUser._id) {
       setError('Safety Override: You cannot delete your own admin account!');
       return;
     }
@@ -82,7 +82,7 @@ const UserManagement = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/admin/users/${user.id}`, {
+      const response = await fetch(`${API_URL}/admin/users/${user._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -168,9 +168,9 @@ const UserManagement = () => {
               </thead>
               <tbody>
                 {users.map((u) => {
-                  const isSelf = u.id === currentUser.id;
+                  const isSelf = u._id === currentUser._id;
                   return (
-                    <tr key={u.id}>
+                    <tr key={u._id}>
                       {/* Name */}
                       <td style={{ fontWeight: 600 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
