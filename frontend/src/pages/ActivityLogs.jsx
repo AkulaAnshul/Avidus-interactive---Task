@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Activity, ShieldAlert, Search, RefreshCw, Calendar, Terminal, Network } from 'lucide-react';
+import { ShieldAlert, Search, RefreshCw, Calendar, Terminal, Network } from 'lucide-react';
 
 const ActivityLogs = () => {
   const { token, API_URL } = useAuth();
@@ -38,23 +38,23 @@ const ActivityLogs = () => {
     fetchLogs();
   }, [token]);
 
-  // Map action labels to custom styles/badges
+  // Map action labels to custom flat styles
   const getActionBadgeClass = (action) => {
     switch (action) {
       case 'Login':
         return 'badge-user'; // sky blue
       case 'Task Creation':
-        return 'badge-active'; // emerald
+        return 'badge-active'; // emerald green
       case 'Task Update':
-        return 'badge-pending'; // amber
+        return 'badge-pending'; // amber orange
       case 'Task Deletion':
-        return 'badge-inactive'; // crimson
+        return 'badge-inactive'; // crimson red
       default:
         return 'badge-secondary';
     }
   };
 
-  // Filter logs based on search and action dropdown
+  // Filter logs
   const filteredLogs = logs.filter((log) => {
     const matchesSearch = 
       log.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -69,8 +69,8 @@ const ActivityLogs = () => {
 
   return (
     <div className="main-content">
-      {/* Header section */}
-      <div className="glass-card" style={{ marginBottom: '2rem', borderLeft: '4px solid var(--accent-admin)' }}>
+      {/* Header */}
+      <div className="glass-card" style={{ borderLeft: '4px solid var(--accent-purple)' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -79,19 +79,19 @@ const ActivityLogs = () => {
           gap: '1rem'
         }}>
           <div>
-            <h1 style={{ fontSize: '2rem', letterSpacing: '-0.03em', color: '#f0f6fc' }}>
+            <h1 style={{ fontSize: '1.6rem', color: 'var(--text-main)' }}>
               Platform Audit Trails
             </h1>
-            <p style={{ color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-              Real-time monitoring of security logins, database mutations, and admin overrides.
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              Monitoring of user logins, task mutations, and administrative overrides.
             </p>
           </div>
           <button
             onClick={fetchLogs}
             className="btn btn-secondary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.4rem 0.8rem' }}
           >
-            <RefreshCw size={14} className={loading ? 'spin' : ''} />
+            <RefreshCw size={12} className={loading ? 'spin' : ''} />
             Refresh Logs
           </button>
         </div>
@@ -100,66 +100,52 @@ const ActivityLogs = () => {
       {/* Errors */}
       {error && (
         <div className="glass-card" style={{
-          background: 'rgba(248, 81, 73, 0.1)',
-          borderColor: 'var(--accent-danger)',
-          color: 'var(--accent-danger)',
-          padding: '1rem',
-          marginBottom: '2rem',
-          borderRadius: '12px',
+          borderColor: 'var(--accent-red)',
+          color: 'var(--accent-red)',
+          padding: '0.75rem 1rem',
+          fontSize: '0.8rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <ShieldAlert size={18} /> {error}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <ShieldAlert size={16} /> {error}
           </span>
-          <button onClick={() => setError('')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+          <button onClick={() => setError('')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer' }}>✕</button>
         </div>
       )}
 
       {/* Search and Filters */}
       <div className="glass-card" style={{
-        padding: '1.25rem',
-        marginBottom: '2rem',
+        padding: '1rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '1.25rem'
+        gap: '1rem'
       }}>
         {/* Search */}
-        <div style={{ position: 'relative', flex: 1, minWidth: '260px' }}>
-          <Search size={16} color="var(--text-dimmed)" style={{
-            position: 'absolute',
-            left: '12px',
-            top: '50%',
-            transform: 'translateY(-50%)'
-          }} />
+        <div style={{ flex: 1, minWidth: '240px' }}>
           <input
             type="text"
             className="form-input"
-            placeholder="Search by user email, details, or IP..."
+            placeholder="Search email, details, or IP..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ paddingLeft: '2.5rem' }}
           />
         </div>
 
         {/* Dropdown */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Action:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Action:</span>
           <select
             className="form-input"
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
-            style={{
-              width: '180px',
-              background: 'rgba(13, 17, 23, 0.8)',
-              cursor: 'pointer'
-            }}
+            style={{ width: '150px', cursor: 'pointer' }}
           >
             <option value="All">All Operations</option>
-            <option value="Login">Logins only</option>
+            <option value="Login">Logins</option>
             <option value="Task Creation">Task Creations</option>
             <option value="Task Update">Task Updates</option>
             <option value="Task Deletion">Task Deletions</option>
@@ -167,26 +153,16 @@ const ActivityLogs = () => {
         </div>
       </div>
 
-      {/* Logs View */}
+      {/* Logs Table */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-muted)' }}>
-          <div style={{
-            width: '30px',
-            height: '30px',
-            border: '2px solid rgba(139, 92, 246, 0.1)',
-            borderTop: '2px solid var(--accent-admin)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 1rem auto'
-          }} />
+        <div style={{ textAlign: 'center', padding: '2rem 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
           <p>Downloading platform audit indices...</p>
         </div>
       ) : filteredLogs.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-muted)' }}>
-          <Activity size={48} style={{ margin: '0 auto 1rem auto', opacity: 0.4 }} />
-          <h3 style={{ color: '#fff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>No Audit Entries Found</h3>
-          <p style={{ maxWidth: '400px', margin: '0 auto' }}>
-            No logs matched the keyword search criteria. Run tasks or switch accounts to produce audit records.
+        <div className="glass-card" style={{ textAlign: 'center', padding: '3rem 1.5rem', color: 'var(--text-muted)' }}>
+          <h3 style={{ color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '0.3rem' }}>No Audit Entries Found</h3>
+          <p style={{ maxWidth: '320px', margin: '0 auto', fontSize: '0.8rem' }}>
+            No logs matched the keyword search criteria.
           </p>
         </div>
       ) : (
@@ -205,22 +181,22 @@ const ActivityLogs = () => {
               </thead>
               <tbody>
                 {filteredLogs.map((log) => (
-                  <tr key={log._id}>
+                  <tr key={log.id}>
                     {/* Timestamp */}
-                    <td style={{ whiteSpace: 'nowrap', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <Calendar size={12} color="var(--text-dimmed)" />
+                    <td style={{ whiteSpace: 'nowrap', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <Calendar size={10} color="var(--text-muted)" />
                         <span>
                           {new Date(log.timestamp).toLocaleDateString()}{' '}
-                          <span style={{ color: '#fff', fontWeight: 500 }}>
-                            {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                          <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>
+                            {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </span>
                       </div>
                     </td>
 
                     {/* Email */}
-                    <td style={{ fontWeight: 600, color: '#f0f6fc' }}>{log.email}</td>
+                    <td style={{ fontWeight: 600 }}>{log.email}</td>
 
                     {/* Role */}
                     <td>
@@ -236,18 +212,18 @@ const ActivityLogs = () => {
                       </span>
                     </td>
 
-                    {/* Description Details */}
-                    <td style={{ color: '#c9d1d9', fontSize: '0.875rem', minWidth: '220px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <Terminal size={12} color="var(--text-dimmed)" />
+                    {/* Description */}
+                    <td style={{ color: 'var(--text-main)', fontSize: '0.8rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <Terminal size={10} color="var(--text-muted)" />
                         <span>{log.details}</span>
                       </div>
                     </td>
 
                     {/* IP */}
-                    <td style={{ fontSize: '0.85rem', color: 'var(--text-dimmed)', fontFamily: 'monospace' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <Network size={12} />
+                    <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                        <Network size={10} />
                         <span>{log.ipAddress}</span>
                       </div>
                     </td>
